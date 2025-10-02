@@ -22,7 +22,6 @@ using Clippy.Services;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 using WinUIEx;
-using Clippy.Tray;
 using System.Threading;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -34,14 +33,14 @@ namespace Clippy
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
     public partial class App : Application
-	{
-		private const string MutexID = "Clippy2025Mutex";
-		private static Mutex? SingleInstanceMutex;
+    {
+        private const string MutexID = "Clippy2025Mutex";
+        private static Mutex? SingleInstanceMutex;
 
-		/// <summary>
-		/// Gets the current <see cref="App"/> instance in use
-		/// </summary>
-		public new static App Current => (App)Application.Current;
+        /// <summary>
+        /// Gets the current <see cref="App"/> instance in use
+        /// </summary>
+        public new static App Current => (App)Application.Current;
 
         /// <summary>
         /// Gets the <see cref="IServiceProvider"/> instance to resolve application services.
@@ -60,18 +59,18 @@ namespace Clippy
             TaskScheduler.UnobservedTaskException += OnUnobservedException;
             AppDomain.CurrentDomain.FirstChanceException += CurrentDomain_FirstChanceException;
 
-			CheckSingleInstance();
-		}
+            CheckSingleInstance();
+        }
 
-		private void CheckSingleInstance()
-		{
-			bool isNewInstance;
-			SingleInstanceMutex = new Mutex(true, MutexID, out isNewInstance);
-			if (!isNewInstance)
-				System.Environment.Exit(0);
-		}
+        private void CheckSingleInstance()
+        {
+            bool isNewInstance;
+            SingleInstanceMutex = new Mutex(true, MutexID, out isNewInstance);
+            if (!isNewInstance)
+                System.Environment.Exit(0);
+        }
 
-		private static IServiceProvider ConfigureServices()
+        private static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
 
@@ -90,37 +89,37 @@ namespace Clippy
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-			if (AppInstance.GetActivatedEventArgs().Kind != ActivationKind.StartupTask)
-			{
-               ShowClippy();
-			}
+            if (AppInstance.GetActivatedEventArgs().Kind != ActivationKind.StartupTask)
+            {
+                ShowClippy();
+            }
 
-            TrayWindow = new TrayFlyoutWindow();
+            TrayWindow = new TrayFlyoutWindow(m_window);
         }
 
         public void ShowClippy()
         {
-			if (m_window is null)
-				m_window = new MainWindow();
-			m_window.Activate();
+            if (m_window is null)
+                m_window = new MainWindow();
+            m_window.Activate();
             m_window.Show();
         }
 
         public void OpenSettings()
-		{
-			if (s_window is null)
-				s_window = new SettingsWindow();
-			s_window.Activate();
-			s_window.Closed += (sender, e) => { s_window = null; };
-		}
+        {
+            if (s_window is null)
+                s_window = new SettingsWindow();
+            s_window.Activate();
+            s_window.Closed += (sender, e) => { s_window = null; };
+        }
 
         private MainWindow m_window;
 
-		private Window s_window;
+        private Window s_window;
 
         private TrayFlyoutWindow TrayWindow;
 
-		private static void OnUnobservedException(object? sender, UnobservedTaskExceptionEventArgs e) => e.SetObserved();
+        private static void OnUnobservedException(object? sender, UnobservedTaskExceptionEventArgs e) => e.SetObserved();
 
         private static void OnUnhandledException(object? sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e) => e.Handled = true;
 
